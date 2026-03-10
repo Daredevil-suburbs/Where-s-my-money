@@ -28,7 +28,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 
 type Tab = 'dashboard' | 'transactions' | 'budgets' | 'settings';
 
@@ -191,12 +191,15 @@ export default function Home() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-64 bg-cyber-dark border-r border-primary/20 p-0">
-                <div className="p-6 border-b border-primary/20">
-                  <div className="flex items-center gap-2">
+                <SheetHeader className="p-6 border-b border-primary/20">
+                  <SheetTitle className="flex items-center gap-2">
                     <BrainCircuit className="text-primary w-6 h-6" />
-                    <h1 className="font-headline text-lg tracking-tighter neon-text-blue">MONEYMIND</h1>
-                  </div>
-                </div>
+                    <span className="font-headline text-lg tracking-tighter neon-text-blue">MONEYMIND</span>
+                  </SheetTitle>
+                  <SheetDescription className="text-[10px] text-muted-foreground tracking-widest uppercase">
+                    Core Terminal Navigation
+                  </SheetDescription>
+                </SheetHeader>
                 <nav className="p-4 space-y-2">
                   <NavigationItems />
                 </nav>
