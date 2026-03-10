@@ -1,22 +1,35 @@
+
+"use client"
+
 import { Transaction, Category, BudgetGoal } from "@/lib/types";
 import { CyberCard } from "../ui/cyber-card";
-import { Progress } from "../ui/progress";
+import { Trash2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function BudgetList({ 
   transactions, 
   categories, 
-  budgetGoals 
+  budgetGoals,
+  onDelete,
+  showFull = false
 }: { 
   transactions: Transaction[], 
   categories: Category[],
-  budgetGoals: BudgetGoal[]
+  budgetGoals: BudgetGoal[],
+  onDelete?: (id: string) => void,
+  showFull?: boolean
 }) {
   return (
-    <CyberCard accentColor="blue" title="RESOURCE ALLOCATION STATUS">
-      <div className="space-y-6">
+    <CyberCard accentColor="blue" title={showFull ? "FULL RESOURCE ALLOCATION TABLE" : "RESOURCE ALLOCATION STATUS"}>
+      <div className={cn(
+        "space-y-6 overflow-y-auto pr-2 custom-scrollbar",
+        showFull ? "max-h-[600px]" : "max-h-[400px]"
+      )}>
         {budgetGoals.length === 0 ? (
-          <p className="text-center py-8 text-muted-foreground text-xs italic">No resource quotas established.</p>
+          <div className="flex flex-col items-center justify-center py-12 opacity-50">
+            <AlertCircle className="w-8 h-8 mb-2" />
+            <p className="text-center text-xs italic">No resource quotas established.</p>
+          </div>
         ) : (
           budgetGoals.map(goal => {
             const category = categories.find(c => c.id === goal.categoryId);
@@ -28,11 +41,21 @@ export function BudgetList({
             const isOver = spent > goal.amount;
 
             return (
-              <div key={goal.id} className="space-y-2">
+              <div key={goal.id} className="group space-y-2">
                 <div className="flex justify-between items-end">
-                  <div>
-                    <span className="text-xs font-headline text-primary tracking-widest">{category?.name}</span>
-                    <p className="text-[10px] text-muted-foreground uppercase">Target: ₹{goal.amount.toLocaleString('en-IN')}</p>
+                  <div className="flex items-center gap-2">
+                    {onDelete && (
+                      <button 
+                        onClick={() => onDelete(goal.id)}
+                        className="p-1 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-all"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    )}
+                    <div>
+                      <span className="text-xs font-headline text-primary tracking-widest">{category?.name}</span>
+                      <p className="text-[10px] text-muted-foreground uppercase">Target: ₹{goal.amount.toLocaleString('en-IN')}</p>
+                    </div>
                   </div>
                   <div className="text-right">
                     <span className={cn(
