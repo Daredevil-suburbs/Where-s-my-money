@@ -63,7 +63,7 @@ export function TransactionForm({
         </div>
 
         <div className="space-y-2">
-          <Label className="text-[10px] uppercase text-muted-foreground">Amount ($)</Label>
+          <Label className="text-[10px] uppercase text-muted-foreground">Amount (₹)</Label>
           <Input 
             type="number" 
             value={amount} 

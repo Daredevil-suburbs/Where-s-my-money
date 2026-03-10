@@ -22,7 +22,7 @@ export function StatsGrid({ transactions, budgetTotal }: { transactions: Transac
           </div>
           <div>
             <p className="text-xs text-muted-foreground uppercase tracking-tighter">Total Balance</p>
-            <p className="text-2xl font-headline neon-text-blue">${balance.toLocaleString()}</p>
+            <p className="text-2xl font-headline neon-text-blue">₹{balance.toLocaleString('en-IN')}</p>
           </div>
         </div>
       </CyberCard>
@@ -34,7 +34,7 @@ export function StatsGrid({ transactions, budgetTotal }: { transactions: Transac
           </div>
           <div>
             <p className="text-xs text-muted-foreground uppercase tracking-tighter">Total Income</p>
-            <p className="text-2xl font-headline neon-text-green">${totalIncome.toLocaleString()}</p>
+            <p className="text-2xl font-headline neon-text-green">₹{totalIncome.toLocaleString('en-IN')}</p>
           </div>
         </div>
       </CyberCard>
@@ -46,7 +46,7 @@ export function StatsGrid({ transactions, budgetTotal }: { transactions: Transac
           </div>
           <div>
             <p className="text-xs text-muted-foreground uppercase tracking-tighter">Total Expenses</p>
-            <p className="text-2xl font-headline neon-text-purple">${totalExpenses.toLocaleString()}</p>
+            <p className="text-2xl font-headline neon-text-purple">₹{totalExpenses.toLocaleString('en-IN')}</p>
           </div>
         </div>
       </CyberCard>
@@ -58,7 +58,7 @@ export function StatsGrid({ transactions, budgetTotal }: { transactions: Transac
           </div>
           <div>
             <p className="text-xs text-muted-foreground uppercase tracking-tighter">Budget Goal</p>
-            <p className="text-2xl font-headline text-primary">${budgetTotal.toLocaleString()}</p>
+            <p className="text-2xl font-headline text-primary">₹{budgetTotal.toLocaleString('en-IN')}</p>
           </div>
         </div>
       </CyberCard>

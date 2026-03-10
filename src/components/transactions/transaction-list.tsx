@@ -55,7 +55,7 @@ export function TransactionList({
                   "font-headline text-sm",
                   isExpense ? "text-secondary neon-text-purple" : "text-accent neon-text-green"
                 )}>
-                  {isExpense ? '-' : '+'}${t.amount.toFixed(2)}
+                  {isExpense ? '-' : '+'}₹{t.amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </div>
               </div>
             );

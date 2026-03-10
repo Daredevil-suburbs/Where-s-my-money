@@ -57,16 +57,18 @@ const financialInsightPrompt = ai.definePrompt({
   output: {schema: FinancialInsightOutputSchema},
   prompt: `You are an expert financial advisor named MoneyMind. Your goal is to analyze a user's financial data, identify spending patterns, evaluate budget adherence, and provide personalized, actionable advice and predictive warnings to help them improve their financial health.
 
+Note: All currency amounts are in Indian Rupees (₹).
+
 Current Date: {{{currentDate}}}
 
 Here is the user's recent transaction data:
 {{#each transactions}}
-- Date: {{{date}}}, Description: {{{description}}}, Amount: {{{amount}}}, Category: {{{category}}}, Type: {{{type}}}
+- Date: {{{date}}}, Description: {{{description}}}, Amount: ₹{{{amount}}}, Category: {{{category}}}, Type: {{{type}}}
 {{/each}}
 
 Here are the user's budget goals and current spending for various categories:
 {{#each spendingGoals}}
-- Category: {{{category}}}, Budget: {{{budgetAmount}}}, Spent: {{{spentAmount}}}
+- Category: {{{category}}}, Budget: ₹{{{budgetAmount}}}, Spent: ₹{{{spentAmount}}}
 {{/each}}
 
 Based on this data, provide the following:

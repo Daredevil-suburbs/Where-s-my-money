@@ -32,14 +32,14 @@ export function BudgetList({
                 <div className="flex justify-between items-end">
                   <div>
                     <span className="text-xs font-headline text-primary tracking-widest">{category?.name}</span>
-                    <p className="text-[10px] text-muted-foreground uppercase">Target: ${goal.amount}</p>
+                    <p className="text-[10px] text-muted-foreground uppercase">Target: ₹{goal.amount.toLocaleString('en-IN')}</p>
                   </div>
                   <div className="text-right">
                     <span className={cn(
                       "text-sm font-headline",
                       isOver ? "text-destructive" : "text-foreground"
                     )}>
-                      ${spent.toFixed(0)}
+                      ₹{spent.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                     </span>
                     <span className="text-[10px] text-muted-foreground ml-1">/ {percentage.toFixed(0)}%</span>
                   </div>
