@@ -22,10 +22,13 @@ import {
   Bell, 
   Trash2, 
   RefreshCcw,
-  ShieldAlert
+  ShieldAlert,
+  Menu,
+  Activity
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 type Tab = 'dashboard' | 'transactions' | 'budgets' | 'settings';
 
@@ -35,6 +38,8 @@ export default function Home() {
   const [categories] = useState<Category[]>(INITIAL_CATEGORIES);
   const [budgetGoals, setBudgetGoals] = useState<BudgetGoal[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [uptime, setUptime] = useState(0);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const savedTransactions = localStorage.getItem('moneymind_transactions');
@@ -53,6 +58,12 @@ export default function Home() {
     }
     
     setIsLoaded(true);
+
+    // Dynamic Uptime Counter
+    const interval = setInterval(() => {
+      setUptime(prev => prev + 1);
+    }, 1000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -61,6 +72,13 @@ export default function Home() {
       localStorage.setItem('moneymind_budgets', JSON.stringify(budgetGoals));
     }
   }, [transactions, budgetGoals, isLoaded]);
+
+  const formatUptime = (seconds: number) => {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
 
   const addTransaction = (t: Transaction) => {
     setTransactions(prev => [t, ...prev]);
@@ -93,11 +111,52 @@ export default function Home() {
 
   const totalBudget = budgetGoals.reduce((sum, g) => sum + g.amount, 0);
 
+  const NavigationItems = () => (
+    <>
+      <button 
+        onClick={() => { setActiveTab('dashboard'); setIsMobileMenuOpen(false); }}
+        className={cn(
+          "flex items-center gap-3 p-3 w-full transition-all text-xs font-headline tracking-widest",
+          activeTab === 'dashboard' ? "bg-primary/10 border-l-2 border-primary text-primary" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+        )}
+      >
+        <LayoutDashboard className="w-4 h-4" /> DASHBOARD
+      </button>
+      <button 
+        onClick={() => { setActiveTab('transactions'); setIsMobileMenuOpen(false); }}
+        className={cn(
+          "flex items-center gap-3 p-3 w-full transition-all text-xs font-headline tracking-widest",
+          activeTab === 'transactions' ? "bg-primary/10 border-l-2 border-primary text-primary" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+        )}
+      >
+        <ListOrdered className="w-4 h-4" /> TRANSACTIONS
+      </button>
+      <button 
+        onClick={() => { setActiveTab('budgets'); setIsMobileMenuOpen(false); }}
+        className={cn(
+          "flex items-center gap-3 p-3 w-full transition-all text-xs font-headline tracking-widest",
+          activeTab === 'budgets' ? "bg-primary/10 border-l-2 border-primary text-primary" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+        )}
+      >
+        <Target className="w-4 h-4" /> BUDGETS
+      </button>
+      <button 
+        onClick={() => { setActiveTab('settings'); setIsMobileMenuOpen(false); }}
+        className={cn(
+          "flex items-center gap-3 p-3 w-full transition-all text-xs font-headline tracking-widest",
+          activeTab === 'settings' ? "bg-primary/10 border-l-2 border-primary text-primary" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
+        )}
+      >
+        <Settings className="w-4 h-4" /> SYSTEM SETTINGS
+      </button>
+    </>
+  );
+
   if (!isLoaded) return null;
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      {/* Sidebar */}
+      {/* Desktop Sidebar */}
       <aside className="w-64 hidden lg:flex flex-col border-r border-primary/20 bg-cyber-dark/80 backdrop-blur-xl">
         <div className="p-6 border-b border-primary/20">
           <div className="flex items-center gap-2">
@@ -110,42 +169,7 @@ export default function Home() {
         </div>
 
         <nav className="flex-1 p-4 space-y-2 mt-4">
-          <button 
-            onClick={() => setActiveTab('dashboard')}
-            className={cn(
-              "flex items-center gap-3 p-3 w-full transition-all text-xs font-headline tracking-widest",
-              activeTab === 'dashboard' ? "bg-primary/10 border-l-2 border-primary text-primary" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-            )}
-          >
-            <LayoutDashboard className="w-4 h-4" /> DASHBOARD
-          </button>
-          <button 
-            onClick={() => setActiveTab('transactions')}
-            className={cn(
-              "flex items-center gap-3 p-3 w-full transition-all text-xs font-headline tracking-widest",
-              activeTab === 'transactions' ? "bg-primary/10 border-l-2 border-primary text-primary" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-            )}
-          >
-            <ListOrdered className="w-4 h-4" /> TRANSACTIONS
-          </button>
-          <button 
-            onClick={() => setActiveTab('budgets')}
-            className={cn(
-              "flex items-center gap-3 p-3 w-full transition-all text-xs font-headline tracking-widest",
-              activeTab === 'budgets' ? "bg-primary/10 border-l-2 border-primary text-primary" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-            )}
-          >
-            <Target className="w-4 h-4" /> BUDGETS
-          </button>
-          <button 
-            onClick={() => setActiveTab('settings')}
-            className={cn(
-              "flex items-center gap-3 p-3 w-full transition-all text-xs font-headline tracking-widest",
-              activeTab === 'settings' ? "bg-primary/10 border-l-2 border-primary text-primary" : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-            )}
-          >
-            <Settings className="w-4 h-4" /> SYSTEM SETTINGS
-          </button>
+          <NavigationItems />
         </nav>
 
         <div className="p-4 border-t border-primary/20">
@@ -157,19 +181,46 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-16 border-b border-primary/10 bg-cyber-dark/40 backdrop-blur-md flex items-center justify-between px-8 z-20">
+        <header className="h-16 border-b border-primary/10 bg-cyber-dark/40 backdrop-blur-md flex items-center justify-between px-4 lg:px-8 z-20">
           <div className="flex items-center gap-4">
-            <h2 className="text-sm font-headline tracking-[0.2em] text-muted-foreground uppercase">
+            {/* Burger Button for Mobile */}
+            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="lg:hidden text-primary">
+                  <Menu className="w-6 h-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-64 bg-cyber-dark border-r border-primary/20 p-0">
+                <div className="p-6 border-b border-primary/20">
+                  <div className="flex items-center gap-2">
+                    <BrainCircuit className="text-primary w-6 h-6" />
+                    <h1 className="font-headline text-lg tracking-tighter neon-text-blue">MONEYMIND</h1>
+                  </div>
+                </div>
+                <nav className="p-4 space-y-2">
+                  <NavigationItems />
+                </nav>
+                <div className="absolute bottom-0 w-full p-4 border-t border-primary/20">
+                  <button className="flex items-center gap-3 p-3 w-full text-secondary text-xs font-headline tracking-widest">
+                    <LogOut className="w-4 h-4" /> DISCONNECT
+                  </button>
+                </div>
+              </SheetContent>
+            </Sheet>
+
+            <h2 className="text-[10px] lg:text-sm font-headline tracking-[0.2em] text-muted-foreground uppercase whitespace-nowrap">
               CORE_TERMINAL / <span className="text-foreground">{activeTab}</span>
             </h2>
           </div>
-          <div className="flex items-center gap-4">
+
+          <div className="flex items-center gap-2 lg:gap-4">
             <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-accent/10 border border-accent/30 rounded-full">
-              <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+              <Activity className="w-3 h-3 text-accent animate-[pulse_2s_infinite]" />
               <span className="text-[10px] text-accent font-bold uppercase tracking-wider">Neural Link Active</span>
             </div>
             <button className="p-2 hover:bg-white/5 rounded-full text-primary relative">
               <Bell className="w-5 h-5" />
+              <span className="absolute top-2 right-2 w-2 h-2 bg-secondary rounded-full animate-ping" />
               <span className="absolute top-2 right-2 w-2 h-2 bg-secondary rounded-full" />
             </button>
             <div className="w-8 h-8 rounded-sm border border-primary/50 overflow-hidden">
@@ -267,7 +318,7 @@ export default function Home() {
                       </div>
                       <div className="p-3 bg-white/5 border border-white/10">
                         <p className="text-[10px] text-muted-foreground uppercase">Uptime</p>
-                        <p className="text-sm font-headline text-accent">99.98%</p>
+                        <p className="text-sm font-headline text-accent font-mono">{formatUptime(uptime)}</p>
                       </div>
                     </div>
                   </section>
