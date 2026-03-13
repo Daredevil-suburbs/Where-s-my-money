@@ -1,9 +1,12 @@
-import type {Metadata} from 'next';
+
+import type { Metadata } from 'next';
 import './globals.css';
+import { FirebaseClientProvider } from '@/firebase/client-provider';
+import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'MoneyMind | Futuristic Financial Intelligence',
-  description: 'AI-powered budgeting and expense tracking for the next generation.',
+  title: 'NeuroBudget | Cybernetic Financial Intelligence',
+  description: 'Proactive budgeting for the neon future.',
 };
 
 export default function RootLayout({
@@ -16,10 +19,13 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Roboto+Mono:ital,wght@0,100..700;1,100..700&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Fira+Code:wght@300..700&display=swap" rel="stylesheet" />
       </head>
-      <body className="font-body antialiased bg-background text-foreground min-h-screen">
-        {children}
+      <body className="custom-scrollbar">
+        <FirebaseClientProvider>
+          {children}
+        </FirebaseClientProvider>
+        <Toaster />
       </body>
     </html>
   );

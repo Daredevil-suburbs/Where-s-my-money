@@ -1,35 +1,41 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 240 45% 4%;
-    --foreground: 210 20% 98%;
-    --card: 240 25% 9%;
-    --card-foreground: 210 20% 98%;
-    --popover: 240 45% 4%;
-    --popover-foreground: 210 20% 98%;
-    --primary: 180 100% 50%; /* Cyan #00FFFF */
-    --primary-foreground: 240 45% 4%;
-    --secondary: 300 100% 50%; /* Magenta #FF00FF */
-    --secondary-foreground: 210 20% 98%;
-    --muted: 240 25% 15%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 120 100% 54%; /* Neon Green #39FF14 */
-    --accent-foreground: 240 45% 4%;
-    --destructive: 0 100% 50%;
-    --destructive-foreground: 210 20% 98%;
-    --border: 240 25% 20%;
-    --input: 240 25% 15%;
-    --ring: 180 100% 50%;
-    --radius: 0px;
+    --background: 210 40% 4%; /* #050a0e approx */
+    --foreground: 180 100% 50%; /* Cyan #00f5ff */
     
-    --chart-1: 180 100% 50%;
-    --chart-2: 300 100% 50%;
-    --chart-3: 120 100% 54%;
-    --chart-4: 45 100% 50%;
-    --chart-5: 200 100% 50%;
+    --card: 217 33% 10%; /* #0a1628 */
+    --card-foreground: 180 100% 50%;
+    
+    --popover: 217 33% 10%;
+    --popover-foreground: 180 100% 50%;
+    
+    --primary: 182 100% 50%; /* Neon Cyan #00f5ff */
+    --primary-foreground: 210 40% 4%;
+    
+    --secondary: 334 100% 53%; /* Neon Pink #ff006e */
+    --secondary-foreground: 210 40% 4%;
+    
+    --accent: 110 100% 54%; /* Neon Green #39ff14 */
+    --accent-foreground: 210 40% 4%;
+    
+    --muted: 217 33% 15%;
+    --muted-foreground: 180 20% 60%;
+    
+    --destructive: 334 100% 53%;
+    --destructive-foreground: 210 40% 4%;
+    
+    --border: 217 33% 20%;
+    --input: 217 33% 15%;
+    --ring: 182 100% 50%;
+    
+    --radius: 0.25rem;
+    
+    --warning: 40 100% 50%; /* Neon Amber #ffaa00 */
   }
 }
 
@@ -38,46 +44,50 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground selection:bg-primary selection:text-primary-foreground;
-    background-image: 
-      radial-gradient(circle at 50% 50%, rgba(28, 28, 44, 0.5) 0%, rgba(10, 10, 26, 1) 100%),
-      linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
-      linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-    background-size: 100% 100%, 100% 2px, 3px 100%;
+    @apply bg-background text-foreground selection:bg-primary/30 antialiased;
+    font-family: 'Fira Code', monospace;
+    position: relative;
+    min-height: 100vh;
+  }
+
+  /* Scanline Overlay */
+  body::before {
+    content: " ";
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    z-index: 1000;
+    background-size: 100% 2px, 3px 100%;
+    pointer-events: none;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-headline uppercase tracking-wider;
+    font-family: 'Orbitron', sans-serif;
+    @apply uppercase tracking-widest font-bold;
   }
 }
 
 @layer components {
-  .cyber-box {
-    @apply relative border border-primary/30 bg-card/80 backdrop-blur-md overflow-hidden;
-    box-shadow: 0 0 15px rgba(0, 255, 255, 0.1);
+  .cyber-card {
+    @apply bg-card border border-primary/20 shadow-[0_0_15px_rgba(0,245,255,0.05)] transition-all duration-300 hover:border-primary/40 hover:shadow-[0_0_20px_rgba(0,245,255,0.1)];
   }
   
-  .cyber-box::before {
-    content: '';
-    @apply absolute inset-0 pointer-events-none;
-    background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.05), transparent);
-  }
+  .neon-text-cyan { text-shadow: 0 0 5px #00f5ff, 0 0 10px #00f5ff; }
+  .neon-text-pink { text-shadow: 0 0 5px #ff006e, 0 0 10px #ff006e; }
+  .neon-text-green { text-shadow: 0 0 5px #39ff14, 0 0 10px #39ff14; }
+  .neon-text-amber { text-shadow: 0 0 5px #ffaa00, 0 0 10px #ffaa00; }
 
-  .neon-text-blue {
-    text-shadow: 0 0 5px #00FFFF, 0 0 10px #00FFFF;
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
   }
-
-  .neon-text-purple {
-    text-shadow: 0 0 5px #FF00FF, 0 0 10px #FF00FF;
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
   }
-
-  .neon-text-green {
-    text-shadow: 0 0 5px #39FF14, 0 0 10px #39FF14;
-  }
-
-  .scanline-overlay {
-    @apply absolute inset-0 pointer-events-none opacity-[0.03] z-50;
-    background: linear-gradient(to bottom, transparent, #00FFFF, transparent);
-    animation: scanline 8s linear infinite;
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-primary/20 rounded-full hover:bg-primary/40;
   }
 }
