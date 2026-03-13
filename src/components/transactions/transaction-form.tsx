@@ -1,123 +1,149 @@
+
 "use client"
 
 import { useState } from 'react';
-import { Category, TransactionType } from "@/lib/types";
-import { CyberCard } from "../ui/cyber-card";
+import { TransactionType } from "@/lib/types";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { Plus, Minus } from "lucide-react";
+import { Plus, Minus, Repeat } from "lucide-react";
+import { Checkbox } from "../ui/checkbox";
 
-export function TransactionForm({ 
-  categories, 
-  onAdd 
-}: { 
-  categories: Category[], 
-  onAdd: (t: any) => void 
-}) {
+interface TransactionFormProps {
+  onAdd: (t: any) => void;
+  onCancel: () => void;
+}
+
+export function TransactionForm({ onAdd, onCancel }: TransactionFormProps) {
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const [categoryId, setCategoryId] = useState('');
+  const [category, setCategory] = useState('');
   const [type, setType] = useState<TransactionType>('expense');
+  const [recurring, setRecurring] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!amount || !categoryId || !description) return;
+    if (!amount || !category || !description) return;
 
     onAdd({
-      id: Math.random().toString(36).substr(2, 9),
       amount: parseFloat(amount),
-      description,
+      desc: description,
       date,
-      categoryId,
-      type
+      category,
+      type,
+      recurring,
+      createdAt: new Date().toISOString()
     });
-
-    setAmount('');
-    setDescription('');
-    setCategoryId('');
   };
 
+  const CATEGORIES = [
+    "Groceries", "Utilities", "Entertainment", "Transport", "Health", 
+    "Salary", "Investments", "Rent", "Dining", "Shopping", "Tech"
+  ];
+
   return (
-    <CyberCard accentColor={type === 'income' ? 'green' : 'purple'} title="LOG DATA STREAM">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="flex gap-2">
-          <Button 
-            type="button" 
-            variant={type === 'expense' ? 'default' : 'outline'} 
-            className={`flex-1 font-headline text-xs ${type === 'expense' ? 'bg-secondary text-white' : 'border-secondary/50 text-secondary'}`}
-            onClick={() => setType('expense')}
-          >
-            <Minus className="w-3 h-3 mr-2" /> EXPENSE
-          </Button>
-          <Button 
-            type="button" 
-            variant={type === 'income' ? 'default' : 'outline'} 
-            className={`flex-1 font-headline text-xs ${type === 'income' ? 'bg-accent text-black' : 'border-accent/50 text-accent'}`}
-            onClick={() => setType('income')}
-          >
-            <Plus className="w-3 h-3 mr-2" /> INCOME
-          </Button>
-        </div>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="flex gap-2 mb-4">
+        <Button 
+          type="button" 
+          variant={type === 'expense' ? 'default' : 'outline'} 
+          className={`flex-1 font-headline text-xs py-6 ${type === 'expense' ? 'bg-secondary text-white' : 'border-secondary/50 text-secondary'}`}
+          onClick={() => setType('expense')}
+        >
+          <Minus className="w-4 h-4 mr-2" /> OUTFLOW
+        </Button>
+        <Button 
+          type="button" 
+          variant={type === 'income' ? 'default' : 'outline'} 
+          className={`flex-1 font-headline text-xs py-6 ${type === 'income' ? 'bg-accent text-black' : 'border-accent/50 text-accent'}`}
+          onClick={() => setType('income')}
+        >
+          <Plus className="w-4 h-4 mr-2" /> INFLOW
+        </Button>
+      </div>
 
+      <div className="space-y-2">
+        <Label className="text-[10px] uppercase text-muted-foreground font-code">Credit_Value (₹)</Label>
+        <Input 
+          type="number" 
+          value={amount} 
+          onChange={e => setAmount(e.target.value)} 
+          placeholder="0.00"
+          className="bg-background/50 border-white/10 text-xl font-headline"
+          required
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label className="text-[10px] uppercase text-muted-foreground font-code">Description</Label>
+        <Input 
+          value={description} 
+          onChange={e => setDescription(e.target.value)} 
+          placeholder="Enter entry details..."
+          className="bg-background/50 border-white/10 font-code"
+          required
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label className="text-[10px] uppercase text-muted-foreground">Amount (₹)</Label>
+          <Label className="text-[10px] uppercase text-muted-foreground font-code">Sector</Label>
+          <Select value={category} onValueChange={setCategory} required>
+            <SelectTrigger className="bg-background/50 border-white/10 font-code">
+              <SelectValue placeholder="Select" />
+            </SelectTrigger>
+            <SelectContent>
+              {CATEGORIES.map(cat => (
+                <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label className="text-[10px] uppercase text-muted-foreground font-code">Timestamp</Label>
           <Input 
-            type="number" 
-            value={amount} 
-            onChange={e => setAmount(e.target.value)} 
-            placeholder="0.00"
-            className="bg-background/50 border-white/10 text-xl font-headline"
+            type="date" 
+            value={date} 
+            onChange={e => setDate(e.target.value)} 
+            className="bg-background/50 border-white/10 font-code"
             required
           />
         </div>
+      </div>
 
-        <div className="space-y-2">
-          <Label className="text-[10px] uppercase text-muted-foreground">Description</Label>
-          <Input 
-            value={description} 
-            onChange={e => setDescription(e.target.value)} 
-            placeholder="Transaction details..."
-            className="bg-background/50 border-white/10"
-            required
-          />
-        </div>
+      <div className="flex items-center space-x-2 py-2">
+        <Checkbox 
+          id="recurring" 
+          checked={recurring} 
+          onCheckedChange={(checked) => setRecurring(!!checked)} 
+        />
+        <Label 
+          htmlFor="recurring" 
+          className="text-xs font-code text-muted-foreground cursor-pointer flex items-center gap-2"
+        >
+          <Repeat className="w-3 h-3" />
+          Recursive Data Entry
+        </Label>
+      </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label className="text-[10px] uppercase text-muted-foreground">Category</Label>
-            <Select value={categoryId} onValueChange={setCategoryId} required>
-              <SelectTrigger className="bg-background/50 border-white/10">
-                <SelectValue placeholder="Select" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map(cat => (
-                  <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label className="text-[10px] uppercase text-muted-foreground">Date</Label>
-            <Input 
-              type="date" 
-              value={date} 
-              onChange={e => setDate(e.target.value)} 
-              className="bg-background/50 border-white/10"
-              required
-            />
-          </div>
-        </div>
-
+      <div className="flex gap-3 pt-4">
+        <Button 
+          type="button" 
+          variant="outline" 
+          onClick={onCancel}
+          className="flex-1 font-headline tracking-widest text-[10px] border-white/10"
+        >
+          ABORT
+        </Button>
         <Button 
           type="submit" 
-          className={`w-full font-headline tracking-widest mt-2 ${type === 'income' ? 'bg-accent hover:bg-accent/90' : 'bg-secondary hover:bg-secondary/90'}`}
+          className={`flex-1 font-headline tracking-widest text-[10px] ${type === 'income' ? 'bg-accent text-black hover:bg-accent/90' : 'bg-secondary text-white hover:bg-secondary/90'}`}
         >
-          EXECUTE LOG
+          COMMIT_LOG
         </Button>
-      </form>
-    </CyberCard>
+      </div>
+    </form>
   );
 }

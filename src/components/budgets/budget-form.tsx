@@ -2,79 +2,100 @@
 "use client"
 
 import { useState } from 'react';
-import { Category, BudgetGoal } from "@/lib/types";
-import { CyberCard } from "../ui/cyber-card";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { Slider } from "../ui/slider";
 import { Target } from "lucide-react";
 
-export function BudgetForm({ 
-  categories, 
-  onAdd 
-}: { 
-  categories: Category[], 
-  onAdd: (goal: BudgetGoal) => void 
-}) {
-  const [amount, setAmount] = useState('');
-  const [categoryId, setCategoryId] = useState('');
+interface BudgetFormProps {
+  onAdd: (b: any) => void;
+  onCancel: () => void;
+}
+
+export function BudgetForm({ onAdd, onCancel }: BudgetFormProps) {
+  const [limit, setLimit] = useState('');
+  const [category, setCategory] = useState('');
+  const [alertAt, setAlertAt] = useState([80]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!amount || !categoryId) return;
+    if (!limit || !category) return;
 
     onAdd({
-      id: Math.random().toString(36).substr(2, 9),
-      categoryId,
-      amount: parseFloat(amount),
-      period: 'monthly'
+      limit: parseFloat(limit),
+      alertAt: alertAt[0],
+      categoryId: category, // For path reference
     });
-
-    setAmount('');
-    setCategoryId('');
   };
 
+  const CATEGORIES = [
+    "Groceries", "Utilities", "Entertainment", "Transport", "Health", 
+    "Dining", "Shopping", "Tech"
+  ];
+
   return (
-    <CyberCard accentColor="blue" title="ESTABLISH QUOTA">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <p className="text-[10px] text-muted-foreground leading-relaxed italic border-l border-primary/30 pl-3 mb-4">
-          Establish monthly resource limits for specific data categories. Existing quotas for the same category will be updated.
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="space-y-2">
+        <Label className="text-[10px] uppercase text-muted-foreground font-code">Sector_Allocation</Label>
+        <Select value={category} onValueChange={setCategory} required>
+          <SelectTrigger className="bg-background/50 border-white/10 font-code">
+            <SelectValue placeholder="Select Category" />
+          </SelectTrigger>
+          <SelectContent>
+            {CATEGORIES.map(cat => (
+              <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
+        <Label className="text-[10px] uppercase text-muted-foreground font-code">Credit_Limit (₹)</Label>
+        <Input 
+          type="number" 
+          value={limit} 
+          onChange={e => setLimit(e.target.value)} 
+          placeholder="5000"
+          className="bg-background/50 border-white/10 text-xl font-headline"
+          required
+        />
+      </div>
+
+      <div className="space-y-4 pt-2">
+        <div className="flex justify-between items-center">
+          <Label className="text-[10px] uppercase text-muted-foreground font-code">Alert_Threshold</Label>
+          <span className="text-xs font-headline text-warning neon-text-amber">{alertAt}%</span>
+        </div>
+        <Slider 
+          value={alertAt} 
+          onValueChange={setAlertAt} 
+          max={100} 
+          step={5} 
+          className="py-4"
+        />
+        <p className="text-[8px] text-muted-foreground font-code italic">
+          System will trigger warnings when resource utilization exceeds this percentage.
         </p>
+      </div>
 
-        <div className="space-y-2">
-          <Label className="text-[10px] uppercase text-muted-foreground">Category</Label>
-          <Select value={categoryId} onValueChange={setCategoryId} required>
-            <SelectTrigger className="bg-background/50 border-white/10">
-              <SelectValue placeholder="Select Sector" />
-            </SelectTrigger>
-            <SelectContent>
-              {categories.map(cat => (
-                <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <Label className="text-[10px] uppercase text-muted-foreground">Monthly Limit (₹)</Label>
-          <Input 
-            type="number" 
-            value={amount} 
-            onChange={e => setAmount(e.target.value)} 
-            placeholder="0.00"
-            className="bg-background/50 border-white/10 text-xl font-headline"
-            required
-          />
-        </div>
-
+      <div className="flex gap-3 pt-6">
+        <Button 
+          type="button" 
+          variant="outline" 
+          onClick={onCancel}
+          className="flex-1 font-headline tracking-widest text-[10px] border-white/10"
+        >
+          ABORT
+        </Button>
         <Button 
           type="submit" 
-          className="w-full font-headline tracking-widest mt-2 bg-primary text-black hover:bg-primary/90"
+          className="flex-1 font-headline tracking-widest text-[10px] bg-primary text-black hover:bg-primary/90"
         >
-          <Target className="w-4 h-4 mr-2" /> INITIALIZE BUDGET
+          SYNC_QUOTA
         </Button>
-      </form>
-    </CyberCard>
+      </div>
+    </form>
   );
 }

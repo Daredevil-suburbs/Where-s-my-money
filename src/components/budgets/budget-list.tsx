@@ -1,85 +1,106 @@
 
 "use client"
 
-import { Transaction, Category, BudgetGoal } from "@/lib/types";
-import { CyberCard } from "../ui/cyber-card";
-import { Trash2, AlertCircle } from "lucide-react";
+import { ArrowRight, AlertTriangle, Target, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { CyberCard } from "../ui/cyber-card";
+import { Badge } from "../ui/badge";
+
+interface BudgetListProps {
+  transactions: any[];
+  budgets: any[];
+  onDelete: (id: string) => void;
+  showFull?: boolean;
+}
 
 export function BudgetList({ 
   transactions, 
-  categories, 
-  budgetGoals,
+  budgets,
   onDelete,
   showFull = false
-}: { 
-  transactions: Transaction[], 
-  categories: Category[],
-  budgetGoals: BudgetGoal[],
-  onDelete?: (id: string) => void,
-  showFull?: boolean
-}) {
+}: BudgetListProps) {
   return (
-    <CyberCard accentColor="blue" title={showFull ? "FULL RESOURCE ALLOCATION TABLE" : "RESOURCE ALLOCATION STATUS"}>
+    <CyberCard accentColor="cyan" className="p-6 h-full">
+      <h3 className="text-sm font-headline tracking-widest text-primary neon-text-cyan uppercase mb-6 flex items-center justify-between">
+        Resource_Quotas
+        <span className="text-[10px] text-muted-foreground font-code uppercase tracking-tighter">Budget Utilization</span>
+      </h3>
+
       <div className={cn(
-        "space-y-6 overflow-y-auto pr-2 custom-scrollbar",
-        showFull ? "max-h-[600px]" : "max-h-[400px]"
+        "space-y-8 pr-2 custom-scrollbar overflow-y-auto",
+        showFull ? "max-h-[700px]" : "max-h-[400px]"
       )}>
-        {budgetGoals.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 opacity-50">
-            <AlertCircle className="w-8 h-8 mb-2" />
-            <p className="text-center text-xs italic">No resource quotas established.</p>
+        {budgets.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 opacity-30 font-code text-xs space-y-4">
+            <Target className="w-8 h-8" />
+            <p>No quotas initialized in this sector.</p>
           </div>
         ) : (
-          budgetGoals.map(goal => {
-            const category = categories.find(c => c.id === goal.categoryId);
+          budgets.map(budget => {
             const spent = transactions
-              .filter(t => t.categoryId === goal.categoryId && t.type === 'expense')
+              .filter(t => t.category === budget.id && t.type === 'expense')
               .reduce((sum, t) => sum + t.amount, 0);
             
-            const percentage = Math.min((spent / goal.amount) * 100, 100);
-            const isOver = spent > goal.amount;
+            const percentage = Math.round((spent / budget.limit) * 100);
+            const isNearLimit = percentage >= (budget.alertAt || 80);
+            const isOverLimit = spent > budget.limit;
 
             return (
-              <div key={goal.id} className="group space-y-2">
+              <div key={budget.id} className="group space-y-3">
                 <div className="flex justify-between items-end">
-                  <div className="flex items-center gap-2">
-                    {onDelete && (
-                      <button 
-                        onClick={() => onDelete(goal.id)}
-                        className="p-1 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-all"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </button>
-                    )}
+                  <div className="flex items-center gap-3">
+                    <div className="p-1.5 bg-primary/5 border border-primary/20 rounded-sm">
+                      <Target className="w-4 h-4 text-primary" />
+                    </div>
                     <div>
-                      <span className="text-xs font-headline text-primary tracking-widest">{category?.name}</span>
-                      <p className="text-[10px] text-muted-foreground uppercase">Target: ₹{goal.amount.toLocaleString('en-IN')}</p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-headline text-primary tracking-widest uppercase">{budget.id}</span>
+                        {isOverLimit ? (
+                          <Badge variant="destructive" className="h-4 px-1 text-[8px] animate-pulse">CRITICAL_OVERRUN</Badge>
+                        ) : isNearLimit ? (
+                          <Badge className="h-4 px-1 text-[8px] bg-warning text-black animate-pulse">WARNING: THRESHOLD</Badge>
+                        ) : null}
+                      </div>
+                      <p className="text-[10px] text-muted-foreground font-code uppercase mt-0.5">
+                        Limit: ₹{budget.limit.toLocaleString('en-IN')}
+                      </p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <span className={cn(
-                      "text-sm font-headline",
-                      isOver ? "text-destructive" : "text-foreground"
-                    )}>
-                      ₹{spent.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
-                    </span>
-                    <span className="text-[10px] text-muted-foreground ml-1">/ {percentage.toFixed(0)}%</span>
+                  
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <div className={cn(
+                        "text-sm font-headline tracking-tighter",
+                        isOverLimit ? "text-secondary neon-text-pink" : isNearLimit ? "text-warning neon-text-amber" : "text-foreground"
+                      )}>
+                        ₹{spent.toLocaleString('en-IN')}
+                      </div>
+                      <div className="text-[10px] text-muted-foreground font-code uppercase">
+                        Utilization: {percentage}%
+                      </div>
+                    </div>
+                    
+                    <button 
+                      onClick={() => onDelete(budget.id)}
+                      className="p-1.5 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-all"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
-                <div className="relative h-2 w-full bg-white/5 border border-white/10">
+
+                <div className="relative h-2 w-full bg-white/5 border border-white/10 overflow-hidden">
                   <div 
                     className={cn(
-                      "absolute top-0 left-0 h-full transition-all duration-500",
-                      isOver ? "bg-destructive shadow-[0_0_8px_rgba(255,0,0,0.5)]" : "bg-primary shadow-[0_0_8px_rgba(0,255,255,0.5)]"
+                      "absolute top-0 left-0 h-full transition-all duration-1000 ease-out",
+                      isOverLimit 
+                        ? "bg-secondary shadow-[0_0_15px_#ff006e]" 
+                        : isNearLimit 
+                          ? "bg-warning shadow-[0_0_15px_#ffaa00]" 
+                          : "bg-primary shadow-[0_0_15px_#00f5ff]"
                     )}
-                    style={{ width: `${percentage}%` }}
+                    style={{ width: `${Math.min(percentage, 100)}%` }}
                   />
-                  {isOver && (
-                    <div className="absolute -top-4 right-0 text-[8px] text-destructive font-bold uppercase animate-pulse">
-                      BUDGET OVERRUN DETECTED
-                    </div>
-                  )}
                 </div>
               </div>
             );

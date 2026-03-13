@@ -1,16 +1,14 @@
 
 'use client';
 
-import { useMemoFirebase, useCollection, useUser, useFirestore } from '@/firebase';
-import { collection, query, orderBy, limit as firestoreLimit } from 'firebase/firestore';
 import { 
   TrendingUp, 
   TrendingDown, 
   Wallet, 
-  AlertCircle,
   Activity,
   ArrowUpRight,
-  ArrowDownLeft
+  ArrowDownLeft,
+  Target
 } from 'lucide-react';
 import { CyberCard } from './ui/cyber-card';
 import { Skeleton } from './ui/skeleton';
@@ -20,37 +18,17 @@ import {
   Cell, 
   ResponsiveContainer, 
   Tooltip,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid
 } from 'recharts';
+import { useMemo } from 'react';
+import { cn } from '@/lib/utils';
 
-export function DashboardView() {
-  const { user } = useUser();
-  const db = useFirestore();
+interface DashboardViewProps {
+  transactions: any[] | null;
+  budgets: any[] | null;
+  isLoading: boolean;
+}
 
-  // Real-time Transactions Listener
-  const transactionsQuery = useMemoFirebase(() => {
-    if (!user || !db) return null;
-    return query(
-      collection(db, 'users', user.uid, 'transactions'),
-      orderBy('date', 'desc'),
-      firestoreLimit(20)
-    );
-  }, [user, db]);
-
-  const { data: transactions, isLoading } = useCollection(transactionsQuery);
-
-  // Real-time Budgets Listener
-  const budgetsQuery = useMemoFirebase(() => {
-    if (!user || !db) return null;
-    return collection(db, 'users', user.uid, 'budgets');
-  }, [user, db]);
-
-  const { data: budgets } = useCollection(budgetsQuery);
-
+export function DashboardView({ transactions, budgets, isLoading }: DashboardViewProps) {
   const stats = useMemo(() => {
     if (!transactions) return { balance: 0, income: 0, expense: 0 };
     const income = transactions
@@ -73,17 +51,22 @@ export function DashboardView() {
     return Object.entries(categories).map(([name, value]) => ({ name, value }));
   }, [transactions]);
 
+  const budgetTotal = useMemo(() => {
+    if (!budgets) return 0;
+    return budgets.reduce((acc, b) => acc + b.limit, 0);
+  }, [budgets]);
+
   const COLORS = ['#00f5ff', '#ff006e', '#39ff14', '#ffaa00', '#8b5cf6', '#ec4899'];
 
   if (isLoading) {
     return (
-      <div className="space-y-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[1, 2, 3].map(i => <Skeleton key={i} className="h-32 w-full cyber-card" />)}
+      <div className="space-y-8 animate-pulse">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-32 w-full bg-card/50" />)}
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Skeleton className="h-[400px] w-full cyber-card" />
-          <Skeleton className="h-[400px] w-full cyber-card" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <Skeleton className="h-[400px] w-full bg-card/50" />
+          <Skeleton className="h-[400px] w-full bg-card/50" />
         </div>
       </div>
     );
@@ -103,72 +86,58 @@ export function DashboardView() {
       </header>
 
       {/* Stat Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatCard 
-          label="Total Credits" 
-          value={stats.balance} 
-          icon={Wallet} 
-          color="cyan" 
-        />
-        <StatCard 
-          label="Inbound Flow" 
-          value={stats.income} 
-          icon={TrendingUp} 
-          color="green" 
-          secondaryLabel="+12% vs last cycle" 
-        />
-        <StatCard 
-          label="Outbound Flow" 
-          value={stats.expense} 
-          icon={TrendingDown} 
-          color="pink" 
-          secondaryLabel="-5% vs last cycle"
-        />
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <StatCard label="Total Credits" value={stats.balance} icon={Wallet} color="cyan" />
+        <StatCard label="Inbound Flow" value={stats.income} icon={TrendingUp} color="green" />
+        <StatCard label="Outbound Flow" value={stats.expense} icon={TrendingDown} color="pink" />
+        <StatCard label="Quota Goal" value={budgetTotal} icon={Target} color="cyan" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Spending Doughnut */}
-        <CyberCard className="p-6 h-[400px] flex flex-col">
-          <h3 className="text-sm font-headline mb-6 border-b border-primary/10 pb-4 flex items-center justify-between">
+        <CyberCard className="p-6 h-[450px] flex flex-col">
+          <h3 className="text-sm font-headline mb-6 border-b border-primary/10 pb-4 flex items-center justify-between uppercase tracking-widest">
             Category_Distribution
             <span className="text-[10px] text-muted-foreground font-code uppercase">Expense profiling</span>
           </h3>
           <div className="flex-1 min-h-0">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={chartData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {chartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#0a1628', border: '1px solid rgba(0,245,255,0.2)', fontFamily: 'Fira Code' }}
-                  itemStyle={{ color: '#00f5ff' }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+            {chartData.length === 0 ? (
+              <div className="h-full flex items-center justify-center opacity-30 italic font-code text-xs uppercase">No telemetry available</div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={chartData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={90}
+                    paddingAngle={8}
+                    dataKey="value"
+                  >
+                    {chartData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: '#0a1628', border: '1px solid rgba(0,245,255,0.2)', fontFamily: 'Fira Code', fontSize: '10px' }}
+                    itemStyle={{ color: '#00f5ff' }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </CyberCard>
 
-        {/* Recent Transactions */}
-        <CyberCard className="p-6 h-[400px] flex flex-col">
-          <h3 className="text-sm font-headline mb-6 border-b border-primary/10 pb-4">Recent_Activity</h3>
-          <div className="flex-1 overflow-y-auto custom-scrollbar space-y-4">
-            {transactions?.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center opacity-30 italic text-sm">
+        <CyberCard className="p-6 h-[450px] flex flex-col">
+          <h3 className="text-sm font-headline mb-6 border-b border-primary/10 pb-4 uppercase tracking-widest">Recent_Telemetry</h3>
+          <div className="flex-1 overflow-y-auto custom-scrollbar space-y-4 pr-2">
+            {!transactions || transactions.length === 0 ? (
+              <div className="h-full flex flex-col items-center justify-center opacity-30 italic text-xs font-code">
                 No data packets detected.
               </div>
             ) : (
-              transactions?.map((tx: any) => (
-                <div key={tx.id} className="flex items-center justify-between p-3 bg-white/5 border border-white/5 group hover:border-primary/20 transition-all">
+              transactions.slice(0, 10).map((tx: any) => (
+                <div key={tx.id} className="flex items-center justify-between p-3 bg-white/5 border border-white/5 group hover:border-primary/20 transition-all rounded-sm">
                   <div className="flex items-center gap-4">
                     <div className={cn(
                       "p-2 rounded-sm border",
@@ -178,7 +147,7 @@ export function DashboardView() {
                     </div>
                     <div>
                       <p className="text-xs font-bold font-headline uppercase">{tx.desc}</p>
-                      <p className="text-[10px] text-muted-foreground font-code">{tx.category} • {new Date(tx.date).toLocaleDateString('en-IN')}</p>
+                      <p className="text-[10px] text-muted-foreground font-code uppercase">{tx.category} • {new Date(tx.date).toLocaleDateString('en-IN')}</p>
                     </div>
                   </div>
                   <div className={cn(
@@ -197,7 +166,7 @@ export function DashboardView() {
   );
 }
 
-function StatCard({ label, value, icon: Icon, color, secondaryLabel }: any) {
+function StatCard({ label, value, icon: Icon, color }: any) {
   const colors = {
     cyan: "text-primary border-primary/20 bg-primary/5",
     pink: "text-secondary border-secondary/20 bg-secondary/5",
@@ -216,16 +185,9 @@ function StatCard({ label, value, icon: Icon, color, secondaryLabel }: any) {
       </div>
       <div className="z-10">
         <div className="text-2xl font-headline tracking-tighter">
-          ₹{value.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+          ₹{value.toLocaleString('en-IN')}
         </div>
-        {secondaryLabel && (
-          <div className="text-[8px] font-code uppercase mt-1 opacity-60">
-            {secondaryLabel}
-          </div>
-        )}
       </div>
     </div>
   );
 }
-
-import { useMemo } from 'react';
