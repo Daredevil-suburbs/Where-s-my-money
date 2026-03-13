@@ -1,0 +1,272 @@
+{
+  "entities": {
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Stores user-specific profile information for the MoneyMind application. This entity does not store authentication credentials, relying on an external authentication system.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UserProfile entity. This typically corresponds to the user's authentication ID."
+        },
+        "name": {
+          "type": "string",
+          "description": "The user's display name, usually retrieved from the authentication provider (e.g., GitHub)."
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address.",
+          "format": "email"
+        },
+        "avatarUrl": {
+          "type": "string",
+          "description": "URL to the user's profile avatar image.",
+          "format": "uri"
+        },
+        "currency": {
+          "type": "string",
+          "description": "The ISO 4217 currency code preferred by the user for displaying monetary values (e.g., 'INR')."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the user's profile was first created.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "email",
+        "avatarUrl",
+        "currency",
+        "createdAt"
+      ]
+    },
+    "SpendingCategory": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "SpendingCategory",
+      "type": "object",
+      "description": "Represents a customizable category that users can create and assign to their financial transactions (e.g., 'Groceries', 'Utilities', 'Entertainment').",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the SpendingCategory entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserProfile that owns this spending category. (Relationship: UserProfile 1:N SpendingCategory)"
+        },
+        "name": {
+          "type": "string",
+          "description": "The unique name of the spending category (e.g., 'Food', 'Transport')."
+        },
+        "description": {
+          "type": "string",
+          "description": "An optional, brief description for the spending category."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "name"
+      ]
+    },
+    "Transaction": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Transaction",
+      "type": "object",
+      "description": "Records individual financial movements, categorized as either income or expense, with details such as amount, date, and description.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Transaction entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserProfile that created this transaction. (Relationship: UserProfile 1:N Transaction)"
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of the financial transaction, either 'income' or 'expense'."
+        },
+        "amount": {
+          "type": "number",
+          "description": "The monetary value of the transaction. Should be positive, with 'type' indicating if it's income or expense."
+        },
+        "categoryId": {
+          "type": "string",
+          "description": "Reference to the SpendingCategory associated with this transaction. (Relationship: SpendingCategory 1:N Transaction)"
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description or note for the transaction."
+        },
+        "date": {
+          "type": "string",
+          "description": "The calendar date on which the transaction occurred.",
+          "format": "date"
+        },
+        "isRecurring": {
+          "type": "boolean",
+          "description": "A flag indicating whether this transaction is part of a recurring series."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when this transaction record was created in the system.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "type",
+        "amount",
+        "categoryId",
+        "description",
+        "date",
+        "isRecurring",
+        "createdAt"
+      ]
+    },
+    "Budget": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Budget",
+      "type": "object",
+      "description": "Defines a budget goal for a specific spending category and period, allowing users to track their financial targets and progress.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Budget entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserProfile that set this budget goal. (Relationship: UserProfile 1:N Budget)"
+        },
+        "categoryId": {
+          "type": "string",
+          "description": "Reference to the SpendingCategory for which this budget is set. (Relationship: SpendingCategory 1:N Budget)"
+        },
+        "limit": {
+          "type": "number",
+          "description": "The maximum monetary amount budgeted for the category within the defined period."
+        },
+        "alertThreshold": {
+          "type": "number",
+          "description": "The percentage of the budget limit (e.g., 80 for 80%) at which a user should be notified of approaching their limit."
+        },
+        "periodType": {
+          "type": "string",
+          "description": "Defines the recurrence period for the budget goal, either 'monthly' or 'weekly'."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when this budget goal was first created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating when this budget goal was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "categoryId",
+        "limit",
+        "alertThreshold",
+        "periodType",
+        "createdAt",
+        "updatedAt"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}/profile",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores private profile information for a specific user. The document's 'id' field is denormalized to match 'userId' from the path for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user, corresponding to Firebase Authentication UID."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/transactions/{transactionId}",
+        "definition": {
+          "entityName": "Transaction",
+          "schema": {
+            "$ref": "#/backend/entities/Transaction"
+          },
+          "description": "Stores individual financial transactions (income or expense) for a specific user. Includes denormalized 'userId' for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user, corresponding to Firebase Authentication UID."
+            },
+            {
+              "name": "transactionId",
+              "description": "The unique identifier for a specific transaction."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/budgets/{budgetId}",
+        "definition": {
+          "entityName": "Budget",
+          "schema": {
+            "$ref": "#/backend/entities/Budget"
+          },
+          "description": "Stores user-defined budget goals for specific spending categories and periods. Includes denormalized 'userId' for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user, corresponding to Firebase Authentication UID."
+            },
+            {
+              "name": "budgetId",
+              "description": "The unique identifier for a specific budget goal."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/spendingCategories/{categoryId}",
+        "definition": {
+          "entityName": "SpendingCategory",
+          "schema": {
+            "$ref": "#/backend/entities/SpendingCategory"
+          },
+          "description": "Stores customizable spending categories defined by a specific user. Includes denormalized 'userId' for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user, corresponding to Firebase Authentication UID."
+            },
+            {
+              "name": "categoryId",
+              "description": "The unique identifier for a specific spending category."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The recommended Firestore structure for NeuroBudget leverages a strict path-based ownership model to ensure secure, scalable, and debuggable authorization. All user-specific data is encapsulated within a `/users/{userId}/` hierarchy, with each subcollection containing documents exclusively owned by the specified user.\n\n**Authorization Independence via Denormalization (Strategy A):**\nEvery document within the user's subcollections (e.g., `transactions`, `budgets`, `spendingCategories`) will explicitly contain a `userId` field (or `id` matching `userId` for the `UserProfile`). This `userId` field will match the `userId` wildcard present in its Firestore path. For example, a transaction document located at `/users/{uid}/transactions/{transactionId}` will have `transaction.userId = {uid}`. This denormalization is critical as it eliminates the need for expensive and complex `get()` calls in Firestore security rules to verify ownership from a parent document. Instead, rules can simply and atomically check `request.auth.uid == resource.data.userId` or `request.auth.uid == request.path[1]`, ensuring operations are independent, robust, and performant, especially within transactions or batched writes.\n\n**QAPs (Rules are not Filters) and Structural Segregation (Strategy B):**\nBy strictly segregating all user data under `/users/{userId}/` and ensuring each document contains its owner's `userId`, the design naturally supports the 'Queries Are Not Filters' principle. When a client performs a `list` operation (e.g., querying the `transactions` collection), Firestore security rules will first validate that the `request.auth.uid` matches the `{userId}` in the path. Subsequently, for each document, the rule will confirm `resource.data.userId == request.auth.uid`. This design ensures that all documents in a given collection share the same security posture (private to the authenticated user). This structural segregation prevents data leakage, makes security rules straightforward to write and reason about, and guarantees that clients only retrieve data they are explicitly authorized to access, without relying on client-side filtering.\n\n**Access Modeling (Strategy C) & Data Clarity (Strategy D):**\nAll entities (`UserProfile`, `Transaction`, `Budget`, `SpendingCategory`) utilize a private, path-based ownership model, standardizing access control. Wildcards are descriptive (`{userId}`, `{transactionId}`, etc.), and authorization fields (`userId`, `id`) are consistently named across documents. This radical consistency and explicit state modeling (e.g., `type: 'income'|'expense'`, `isRecurring: boolean`) enhance predictability and debuggability, adhering to all core design principles."
+  }
+}
