@@ -1,4 +1,3 @@
-
 'use client';
 
 import { AuthGuard } from '@/components/AuthGuard';
@@ -14,11 +13,12 @@ import { CyberCard } from '@/components/ui/cyber-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useState } from 'react';
 import { useMemoFirebase, useCollection, useUser, useFirestore } from '@/firebase';
 import { collection, query, orderBy, doc, deleteDoc, setDoc, writeBatch, getDocs } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
-import { Download, User, Calendar, Mail, CheckCircle2, RefreshCw } from 'lucide-react';
+import { Download, Calendar, Mail, CheckCircle2, RefreshCw, Loader2, User as UserIcon } from 'lucide-react';
 import { updateProfile } from 'firebase/auth';
 
 export default function Home() {
@@ -128,7 +128,10 @@ export default function Home() {
   };
 
   const handleExportCSV = () => {
-    if (!transactions || transactions.length === 0) return;
+    if (!transactions || transactions.length === 0) {
+      toast({ variant: "destructive", title: "EXPORT_ABORTED", description: "No transaction logs available for extraction." });
+      return;
+    }
     const headers = ['Date', 'Description', 'Amount', 'Category', 'Type', 'Recurring'];
     const rows = transactions.map(t => [
       t.date,
@@ -152,6 +155,8 @@ export default function Home() {
     toast({ title: "DATA_EXPORT_COMPLETE", description: "Log binary converted to CSV." });
   };
 
+  const isLoading = isTxLoading || isBudgetLoading;
+
   return (
     <AuthGuard>
       <div className="flex h-screen bg-background text-foreground overflow-hidden">
@@ -160,7 +165,7 @@ export default function Home() {
         <main className="flex-1 flex flex-col overflow-hidden relative">
           <div className="flex-1 overflow-y-auto p-4 lg:p-8 custom-scrollbar">
             
-            {activeTab === 'dashboard' && <DashboardView transactions={transactions} budgets={budgets} isLoading={isTxLoading || isBudgetLoading} />}
+            {activeTab === 'dashboard' && <DashboardView transactions={transactions} budgets={budgets} isLoading={isLoading} />}
             
             {activeTab === 'transactions' && (
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 h-full flex flex-col">
@@ -177,7 +182,14 @@ export default function Home() {
                   </Button>
                 </div>
                 <div className="flex-1 min-h-0">
-                  <TransactionList transactions={transactions || []} onDelete={handleDeleteTransaction} showFull />
+                  {isLoading ? (
+                    <div className="space-y-4">
+                      <Skeleton className="h-12 w-full" />
+                      <Skeleton className="h-[400px] w-full" />
+                    </div>
+                  ) : (
+                    <TransactionList transactions={transactions || []} onDelete={handleDeleteTransaction} showFull />
+                  )}
                 </div>
               </div>
             )}
@@ -196,7 +208,14 @@ export default function Home() {
                     + INITIALIZE_QUOTA
                   </Button>
                 </div>
-                <BudgetList transactions={transactions || []} budgets={budgets || []} onDelete={handleDeleteBudget} showFull />
+                {isLoading ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <Skeleton className="h-64 w-full" />
+                    <Skeleton className="h-64 w-full" />
+                  </div>
+                ) : (
+                  <BudgetList transactions={transactions || []} budgets={budgets || []} onDelete={handleDeleteBudget} showFull />
+                )}
               </div>
             )}
 
