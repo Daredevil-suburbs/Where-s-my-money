@@ -8,16 +8,17 @@ import { TransactionList } from '@/components/transactions/transaction-list';
 import { TransactionForm } from '@/components/transactions/transaction-form';
 import { BudgetList } from '@/components/budgets/budget-list';
 import { BudgetForm } from '@/components/budgets/budget-form';
+import { NeuralTerminal } from '@/components/ai/neural-terminal';
 import { CyberModal } from '@/components/ui/cyber-modal';
 import { CyberCard } from '@/components/ui/cyber-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useState, useMemo, useEffect } from 'react';
+import { useState } from 'react';
 import { useMemoFirebase, useCollection, useUser, useFirestore } from '@/firebase';
-import { collection, query, orderBy, doc, deleteDoc, setDoc, updateDoc, writeBatch, getDocs } from 'firebase/firestore';
+import { collection, query, orderBy, doc, deleteDoc, setDoc, writeBatch, getDocs } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
-import { Download, Trash2, User, Calendar, Mail, CheckCircle2, RefreshCw } from 'lucide-react';
+import { Download, User, Calendar, Mail, CheckCircle2, RefreshCw } from 'lucide-react';
 import { updateProfile } from 'firebase/auth';
 
 export default function Home() {
@@ -165,8 +166,8 @@ export default function Home() {
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 h-full flex flex-col">
                 <div className="flex justify-between items-end">
                   <div>
-                    <h2 className="text-3xl font-headline text-primary neon-text-cyan uppercase">Transactions_Manager</h2>
-                    <p className="text-xs text-muted-foreground font-code uppercase tracking-widest mt-1">Full Log Access</p>
+                    <h2 className="text-3xl font-headline text-primary neon-text-cyan uppercase">Transactions_Log</h2>
+                    <p className="text-xs text-muted-foreground font-code uppercase tracking-widest mt-1">Full Ledger Access</p>
                   </div>
                   <Button 
                     onClick={() => setIsTxModalOpen(true)} 
@@ -185,8 +186,8 @@ export default function Home() {
               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
                 <div className="flex justify-between items-end">
                   <div>
-                    <h2 className="text-3xl font-headline text-primary neon-text-cyan uppercase">Resource_Management</h2>
-                    <p className="text-xs text-muted-foreground font-code uppercase tracking-widest mt-1">Quota Optimization</p>
+                    <h2 className="text-3xl font-headline text-primary neon-text-cyan uppercase">Sector_Quotas</h2>
+                    <p className="text-xs text-muted-foreground font-code uppercase tracking-widest mt-1">Resource Optimization</p>
                   </div>
                   <Button 
                     onClick={() => setIsBudgetModalOpen(true)} 
@@ -199,16 +200,22 @@ export default function Home() {
               </div>
             )}
 
+            {activeTab === 'ai' && (
+              <div className="h-full animate-in fade-in slide-in-from-bottom-4 duration-700">
+                <NeuralTerminal transactions={transactions || []} budgets={budgets || []} />
+              </div>
+            )}
+
             {activeTab === 'profile' && (
               <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                <h2 className="text-3xl font-headline text-primary neon-text-cyan uppercase">User_Identity_Node</h2>
+                <h2 className="text-3xl font-headline text-primary neon-text-cyan uppercase">Identity_Node</h2>
                 
                 <CyberCard className="p-8">
                   <div className="flex flex-col md:flex-row items-center gap-8 mb-12">
                     <div className="relative group">
                       <div className="absolute inset-0 bg-primary/20 blur-xl group-hover:bg-primary/40 transition-all rounded-full" />
                       <img 
-                        src={user?.photoURL || 'https://picsum.photos/seed/user/200/200'} 
+                        src={user?.photoURL || `https://picsum.photos/seed/${user?.uid}/200/200`} 
                         className="w-32 h-32 rounded-full border-2 border-primary relative z-10"
                         alt="Avatar"
                       />
@@ -220,7 +227,7 @@ export default function Home() {
                           <Mail className="w-4 h-4 text-primary" /> {user?.email}
                         </div>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground font-code">
-                          <Calendar className="w-4 h-4 text-primary" /> Linked: {new Date(user?.metadata.creationTime || '').toLocaleDateString('en-IN')}
+                          <Calendar className="w-4 h-4 text-primary" /> Established: {new Date(user?.metadata.creationTime || '').toLocaleDateString('en-IN')}
                         </div>
                       </div>
                     </div>
@@ -228,7 +235,7 @@ export default function Home() {
 
                   <div className="space-y-6 border-t border-white/5 pt-8">
                     <div className="space-y-2">
-                      <Label className="text-[10px] uppercase text-muted-foreground font-code">Modify_Neural_Handle</Label>
+                      <Label className="text-[10px] uppercase text-muted-foreground font-code">Modify_Identity_Handle</Label>
                       <div className="flex gap-2">
                         <Input 
                           value={newName} 
@@ -241,7 +248,7 @@ export default function Home() {
                           disabled={isUpdatingProfile}
                           className="bg-primary text-black hover:bg-primary/90 font-headline text-[10px]"
                         >
-                          {isUpdatingProfile ? "SYNCING..." : "UPDATE"}
+                          {isUpdatingProfile ? "SYNCING..." : "COMMIT_CHANGE"}
                         </Button>
                       </div>
                     </div>
@@ -249,8 +256,8 @@ export default function Home() {
                     <div className="p-4 bg-accent/5 border border-accent/20 rounded-sm flex items-center gap-4">
                       <CheckCircle2 className="w-8 h-8 text-accent" />
                       <div>
-                        <p className="text-xs font-headline uppercase text-accent">Status: Active</p>
-                        <p className="text-[10px] font-code text-muted-foreground">Neural link fully synchronized with GitHub Core.</p>
+                        <p className="text-xs font-headline uppercase text-accent">Status: Fully_Synchronized</p>
+                        <p className="text-[10px] font-code text-muted-foreground">Neural link integrity verified across cloud sectors.</p>
                       </div>
                     </div>
                   </div>
@@ -260,22 +267,22 @@ export default function Home() {
 
             {activeTab === 'settings' && (
               <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-                <h2 className="text-3xl font-headline text-primary neon-text-cyan uppercase">System_Configuration</h2>
+                <h2 className="text-3xl font-headline text-primary neon-text-cyan uppercase">System_Parameters</h2>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <CyberCard className="p-6 space-y-4" accentColor="cyan">
                     <div className="flex items-center gap-3 text-primary">
                       <Download className="w-5 h-5" />
-                      <h3 className="text-sm font-headline uppercase">Data_Export</h3>
+                      <h3 className="text-sm font-headline uppercase">Binary_Export</h3>
                     </div>
                     <p className="text-[10px] text-muted-foreground font-code leading-relaxed">
-                      Download all transaction records in CSV format for offline analysis or external auditing.
+                      Download all transaction data packets in CSV format for offline diagnostics.
                     </p>
                     <Button 
                       onClick={handleExportCSV}
                       className="w-full border-primary/30 text-primary hover:bg-primary/10 variant-outline font-headline text-[10px]"
                     >
-                      EXECUTE_CSV_EXPORT
+                      EXECUTE_EXPORT
                     </Button>
                   </CyberCard>
 
@@ -285,13 +292,13 @@ export default function Home() {
                       <h3 className="text-sm font-headline uppercase">Factory_Reset</h3>
                     </div>
                     <p className="text-[10px] text-muted-foreground font-code leading-relaxed">
-                      Wipe all synchronized data clusters including transactions and budget quotas. This is irreversible.
+                      Purge all synchronized data streams. This action is irreversible and requires confirmation.
                     </p>
                     <Button 
                       onClick={() => setIsResetModalOpen(true)}
                       className="w-full border-secondary/30 text-secondary hover:bg-secondary/10 variant-outline font-headline text-[10px]"
                     >
-                      INITIALIZE_REFORMAT
+                      INITIALIZE_PURGE
                     </Button>
                   </CyberCard>
                 </div>
@@ -304,8 +311,8 @@ export default function Home() {
         <CyberModal 
           isOpen={isTxModalOpen} 
           onClose={() => setIsTxModalOpen(false)} 
-          title="Log_New_Stream" 
-          description="Enter transaction metadata into the neural log."
+          title="New_Transaction_Stream" 
+          description="Logging financial activity to Firestore Core."
           accentColor="cyan"
         >
           <TransactionForm onAdd={handleAddTransaction} onCancel={() => setIsTxModalOpen(false)} />
@@ -314,8 +321,8 @@ export default function Home() {
         <CyberModal 
           isOpen={isBudgetModalOpen} 
           onClose={() => setIsBudgetModalOpen(false)} 
-          title="Initialize_Quota" 
-          description="Establish resource limits for network sectors."
+          title="Update_Sector_Quota" 
+          description="Optimizing resource allocation for specified category."
           accentColor="cyan"
         >
           <BudgetForm onAdd={handleSetBudget} onCancel={() => setIsBudgetModalOpen(false)} />
@@ -324,19 +331,19 @@ export default function Home() {
         <CyberModal 
           isOpen={isResetModalOpen} 
           onClose={() => setIsResetModalOpen(false)} 
-          title="Confirm_Reformat" 
-          description="Critical System Action Requested"
+          title="Critical_Warning" 
+          description="System Reformatting Requested"
           accentColor="pink"
         >
           <div className="space-y-6">
             <div className="p-4 bg-secondary/10 border border-secondary/30 rounded-sm">
               <p className="text-xs text-secondary font-code leading-relaxed">
-                WARNING: You are about to purge all financial data packets. This action will permanently erase your transaction history and budget limits from the Firestore core.
+                URGENT: Proceeding with this protocol will permanently erase all transaction logs and budget quotas from the Firestore core. No recovery possible.
               </p>
             </div>
             <div className="flex gap-3">
               <Button onClick={() => setIsResetModalOpen(false)} className="flex-1 font-headline text-[10px]">ABORT</Button>
-              <Button onClick={handleFactoryReset} variant="destructive" className="flex-1 font-headline text-[10px]">EXECUTE_PURGE</Button>
+              <Button onClick={handleFactoryReset} variant="destructive" className="flex-1 font-headline text-[10px]">EXECUTE_WIPE</Button>
             </div>
           </div>
         </CyberModal>

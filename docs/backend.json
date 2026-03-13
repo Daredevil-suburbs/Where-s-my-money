@@ -41,7 +41,7 @@
     }
   },
   "auth": {
-    "providers": ["github"]
+    "providers": ["google", "github"]
   },
   "firestore": {
     "/users/{userId}/profile": {
