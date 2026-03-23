@@ -46,6 +46,3 @@ firestore-debug.log
 
 .env.local
 .env
-*.json
-node_modules
-.next
