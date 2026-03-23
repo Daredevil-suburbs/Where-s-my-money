@@ -17,16 +17,19 @@ interface BudgetFormProps {
 export function BudgetForm({ onAdd, onCancel }: BudgetFormProps) {
   const [limit, setLimit] = useState('');
   const [category, setCategory] = useState('');
+  const [customCategory, setCustomCategory] = useState('');
   const [alertAt, setAlertAt] = useState([80]);
+
+  const resolvedCategory = category === '__other__' ? customCategory.trim() : category;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!limit || !category) return;
+    if (!limit || !resolvedCategory) return;
 
     onAdd({
       limit: parseFloat(limit),
       alertAt: alertAt[0],
-      categoryId: category, // For path reference
+      categoryId: resolvedCategory,
     });
   };
 
@@ -39,7 +42,7 @@ export function BudgetForm({ onAdd, onCancel }: BudgetFormProps) {
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-2">
         <Label className="text-[10px] uppercase text-muted-foreground font-code">Sector_Allocation</Label>
-        <Select value={category} onValueChange={setCategory} required>
+        <Select value={category} onValueChange={(v) => { setCategory(v); if (v !== '__other__') setCustomCategory(''); }} required>
           <SelectTrigger className="bg-background/50 border-white/10 font-code">
             <SelectValue placeholder="Select Category" />
           </SelectTrigger>
@@ -47,9 +50,24 @@ export function BudgetForm({ onAdd, onCancel }: BudgetFormProps) {
             {CATEGORIES.map(cat => (
               <SelectItem key={cat} value={cat}>{cat}</SelectItem>
             ))}
+            <SelectItem value="__other__" className="text-primary border-t border-white/10 mt-1">+ Custom Sector</SelectItem>
           </SelectContent>
         </Select>
       </div>
+
+      {category === '__other__' && (
+        <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-300">
+          <Label className="text-[10px] uppercase text-muted-foreground font-code">Custom_Sector_Name</Label>
+          <Input 
+            value={customCategory} 
+            onChange={e => setCustomCategory(e.target.value)} 
+            placeholder="Enter custom sector name..."
+            className="bg-background/50 border-primary/30 font-code"
+            required
+            autoFocus
+          />
+        </div>
+      )}
 
       <div className="space-y-2">
         <Label className="text-[10px] uppercase text-muted-foreground font-code">Credit_Limit (₹)</Label>
@@ -91,6 +109,7 @@ export function BudgetForm({ onAdd, onCancel }: BudgetFormProps) {
         </Button>
         <Button 
           type="submit" 
+          disabled={category === '__other__' && !customCategory.trim()}
           className="flex-1 font-headline tracking-widest text-[10px] bg-primary text-black hover:bg-primary/90"
         >
           SYNC_QUOTA
@@ -99,3 +118,4 @@ export function BudgetForm({ onAdd, onCancel }: BudgetFormProps) {
     </form>
   );
 }
+

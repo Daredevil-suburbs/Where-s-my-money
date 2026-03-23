@@ -11,9 +11,13 @@ export interface Transaction {
   id: string;
   amount: number;
   date: string; // YYYY-MM-DD
-  description: string;
-  categoryId: string;
+  description?: string;
+  desc?: string;
+  categoryId?: string;
+  category?: string;
   type: TransactionType;
+  recurring?: boolean;
+  createdAt?: string;
 }
 
 export interface BudgetGoal {

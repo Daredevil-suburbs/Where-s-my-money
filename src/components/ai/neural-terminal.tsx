@@ -18,9 +18,11 @@ export function NeuralTerminal({ transactions, budgets }: NeuralTerminalProps) {
   const [query, setQuery] = useState('');
   const [result, setResult] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const performAnalysis = async (type: 'spending' | 'savings' | 'forecast' | 'query', customQuery?: string) => {
     setIsLoading(true);
+    setError(null);
     try {
       const response = await runNeuralAnalysis({
         transactions,
@@ -29,8 +31,10 @@ export function NeuralTerminal({ transactions, budgets }: NeuralTerminalProps) {
         userQuery: customQuery || query
       });
       setResult(response);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Neural analysis failed:", error);
+      setError(error?.message || "Neural link disrupted. Analysis core unresponsive.");
+      setResult(null);
     } finally {
       setIsLoading(false);
     }
@@ -75,6 +79,12 @@ export function NeuralTerminal({ transactions, budgets }: NeuralTerminalProps) {
             <div className="h-full flex flex-col items-center justify-center space-y-4 opacity-50">
               <Loader2 className="w-12 h-12 animate-spin text-primary" />
               <p className="font-code text-xs uppercase tracking-widest animate-pulse">Analyzing neural data clusters...</p>
+            </div>
+          ) : error ? (
+            <div className="h-full flex flex-col items-center justify-center space-y-4 text-center">
+              <AlertCircle className="w-12 h-12 text-secondary" />
+              <p className="font-headline text-xs tracking-widest text-secondary uppercase">ANALYSIS_FAULT</p>
+              <p className="font-code text-[10px] text-muted-foreground max-w-sm leading-relaxed">{error}</p>
             </div>
           ) : result ? (
             <div className="space-y-6 animate-in fade-in duration-500">

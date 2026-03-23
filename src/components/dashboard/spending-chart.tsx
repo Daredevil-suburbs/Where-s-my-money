@@ -24,7 +24,7 @@ export function SpendingChart({
   
   const data = categories.map(cat => {
     const total = expenseTransactions
-      .filter(t => t.categoryId === cat.id)
+      .filter(t => t.category === cat.id)
       .reduce((sum, t) => sum + t.amount, 0);
     
     return {
