@@ -30,6 +30,7 @@ Track income and expenses, set budget quotas with threshold alerts, and let the 
 ## ✨ Features
 
 ### 🖥️ Neural Command Dashboard
+
 > Real-time financial telemetry at a glance
 
 - **Live stat cards** — Total Credits, Inbound Flow, Outbound Flow, Quota Goal
@@ -43,6 +44,7 @@ Track income and expenses, set budget quotas with threshold alerts, and let the 
 ---
 
 ### 📊 Transactions Log
+
 > Full ledger access with search, filter, and CRUD operations
 
 - Add income/expense entries with custom categories
@@ -57,6 +59,7 @@ Track income and expenses, set budget quotas with threshold alerts, and let the 
 ---
 
 ### 🎯 Sector Quotas (Budgets)
+
 > Resource optimization with real-time utilization tracking
 
 - Set **spending limits** per category with customizable **alert thresholds**
@@ -71,6 +74,7 @@ Track income and expenses, set budget quotas with threshold alerts, and let the 
 ---
 
 ### 🧠 Neural Analysis (AI-Powered)
+
 > Financial intelligence powered by Google Gemini
 
 - **Spending Profile** — AI breakdown of your spending patterns
@@ -86,6 +90,7 @@ Track income and expenses, set budget quotas with threshold alerts, and let the 
 ---
 
 ### 🔐 Secure Authentication
+
 > Multi-provider OAuth with Firebase Authentication
 
 - **Google OAuth** — One-click sign in
@@ -101,17 +106,17 @@ Track income and expenses, set budget quotas with threshold alerts, and let the 
 
 ## 🛠️ Tech Stack
 
-| Layer | Technology |
-|---|---|
-| **Framework** | [Next.js 15](https://nextjs.org/) (App Router, Turbopack) |
-| **Language** | [TypeScript 5](https://www.typescriptlang.org/) |
-| **Styling** | [Tailwind CSS](https://tailwindcss.com/) + Custom Cyberpunk Theme |
-| **Database** | [Cloud Firestore](https://firebase.google.com/docs/firestore) (Real-time sync) |
-| **Auth** | [Firebase Authentication](https://firebase.google.com/docs/auth) (Google, GitHub) |
-| **AI Engine** | [Google Genkit](https://firebase.google.com/docs/genkit) + [Gemini AI](https://ai.google.dev/) |
-| **Charts** | [Recharts](https://recharts.org/) |
-| **UI Components** | [Radix UI](https://www.radix-ui.com/) + [shadcn/ui](https://ui.shadcn.com/) |
-| **Icons** | [Lucide React](https://lucide.dev/) |
+| Layer             | Technology                                                                                     |
+| ----------------- | ---------------------------------------------------------------------------------------------- |
+| **Framework**     | [Next.js 15](https://nextjs.org/) (App Router, Turbopack)                                      |
+| **Language**      | [TypeScript 5](https://www.typescriptlang.org/)                                                |
+| **Styling**       | [Tailwind CSS](https://tailwindcss.com/) + Custom Cyberpunk Theme                              |
+| **Database**      | [Cloud Firestore](https://firebase.google.com/docs/firestore) (Real-time sync)                 |
+| **Auth**          | [Firebase Authentication](https://firebase.google.com/docs/auth) (Google, GitHub)              |
+| **AI Engine**     | [Google Genkit](https://firebase.google.com/docs/genkit) + [Gemini AI](https://ai.google.dev/) |
+| **Charts**        | [Recharts](https://recharts.org/)                                                              |
+| **UI Components** | [Radix UI](https://www.radix-ui.com/) + [shadcn/ui](https://ui.shadcn.com/)                    |
+| **Icons**         | [Lucide React](https://lucide.dev/)                                                            |
 
 ---
 
@@ -223,14 +228,14 @@ service cloud.firestore {
 
 ## 📜 Available Scripts
 
-| Command | Description |
-|---|---|
-| `npm run dev` | Start dev server on port 9002 (Turbopack) |
-| `npm run build` | Create production build |
-| `npm run start` | Start production server |
-| `npm run lint` | Run ESLint |
-| `npm run typecheck` | Run TypeScript type checking |
-| `npm run genkit:dev` | Start Genkit AI dev server |
+| Command              | Description                               |
+| -------------------- | ----------------------------------------- |
+| `npm run dev`        | Start dev server on port 9002 (Turbopack) |
+| `npm run build`      | Create production build                   |
+| `npm run start`      | Start production server                   |
+| `npm run lint`       | Run ESLint                                |
+| `npm run typecheck`  | Run TypeScript type checking              |
+| `npm run genkit:dev` | Start Genkit AI dev server                |
 
 ---
 
@@ -264,5 +269,5 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 ---
 
 <p align="center">
-  <sub>Built with ⚡ by the NeuroBudget team — because managing money should feel like hacking the matrix.</sub>
+  <sub>Built with ⚡ by the NeuroBudget team AKA its me  — because managing money should feel like hacking the matrix.</sub>
 </p>
